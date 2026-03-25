@@ -1,0 +1,41 @@
+#!/bin/bash
+
+CONFIG_DIR="/rw/config/vpn-configs"
+CONNECTION_NAME="mullvad"
+
+# Function to send notifications as user
+notify() {
+    sudo -u user DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus notify-send "$@"
+}
+
+# Wait for NetworkManager and desktop to be ready
+sleep 8
+
+# Pick a random config
+RANDOM_CONF=$(find "$CONFIG_DIR" -name "*.conf" | shuf -n 1)
+
+if [ -z "$RANDOM_CONF" ]; then
+    notify -u critical "VPN" "No configs found!"
+    exit 1
+fi
+
+SERVER_NAME=$(basename "$RANDOM_CONF" .conf)
+notify -u normal "VPN" "Connecting to $SERVER_NAME..."
+
+# Remove existing connection
+nmcli connection delete "$CONNECTION_NAME" 2>/dev/null
+
+# Import and rename
+nmcli connection import type wireguard file "$RANDOM_CONF"
+IMPORTED_NAME=$(basename "$RANDOM_CONF" .conf)
+nmcli connection modify "$IMPORTED_NAME" connection.id "$CONNECTION_NAME" 2>/dev/null
+
+# Connect and notify result
+if nmcli connection up "$CONNECTION_NAME"; then
+    notify -u normal "VPN" "✓ Connected to $SERVER_NAME"
+else
+    notify -u critical "VPN" "✗ Failed to connect to $SERVER_NAME"
+fi
+
+# Start disconnect monitor in background
+/rw/config/vpn-monitor.sh &
