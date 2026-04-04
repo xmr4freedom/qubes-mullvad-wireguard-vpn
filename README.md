@@ -62,7 +62,7 @@ mv ~/QubesIncoming/*/*.conf /rw/config/vpn-configs/
 # Copy scripts from this repo
 cp scripts/rc.local /rw/config/rc.local
 cp scripts/vpn-monitor.sh /rw/config/vpn-monitor.sh
-cp scripts/qubes-firewall-user-script /rw/config/qubes-firewall-user-script
+cp scripts/qubes-firewall-user-script.sh /rw/config/qubes-firewall-user-script
 
 # Make executable
 chmod +x /rw/config/rc.local
@@ -75,7 +75,7 @@ In dom0:
 
 ```bash
 # Copy the firewall script
-cp scripts/update-vpn-firewall.sh ~/update-vpn-firewall.sh
+qvm-run --pass-io sys-vpn-mullvad 'cat /path/to/update-vpn-firewall.sh' > ~/update-vpn-firewall.sh
 chmod +x ~/update-vpn-firewall.sh
 
 # Run it
@@ -114,4 +114,4 @@ curl https://am.i.mullvad.net/connected
 ### Security Notes
 - Never commit your .conf files as they contain private keys!
 - The killswitch blocks ALL traffic if VPN drops.
-- DNS is forced through the Mullvad DNS server at the 10.64.0.1 internal IP addres.
+- DNS is forced through the Mullvad DNS server at the 10.64.0.1 internal IP address.
