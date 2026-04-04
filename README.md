@@ -9,7 +9,7 @@ A minimal, secure WireGuard VPN gateway for Qubes OS that:
 ## Requirements
 
 - Qubes OS 4.2+
-- Debian 13 minimal template
+- Debian 12/13 minimal template
 - Wireguard VPN account (Mullvad)
 
 ## Step 1: Prepare the Template
